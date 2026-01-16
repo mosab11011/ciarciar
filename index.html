@@ -1,0 +1,156 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>CIAR للخدمات العقارية</title>
+    <script type="text/javascript">
+      function googleTranslateElementInit() {
+        new google.translate.TranslateElement({
+          pageLanguage: 'ar',
+          includedLanguages: 'ar,en,fr,es',
+          layout: google.translate.TranslateElement.InlineLayout.SIMPLE,
+          autoDisplay: false
+        }, 'google_translate_element');
+      }
+    </script>
+    <script type="text/javascript" src="//translate.google.com/translate_a/element.js?cb=googleTranslateElementInit"></script>
+    <script type="text/javascript">
+      // Global function to trigger Google Translate
+      function doGTranslate(lang_pair) {
+        if (lang_pair && lang_pair.length > 0) {
+          var lang = lang_pair.split('|')[0];
+          if (lang) {
+            // Wait for Google Translate to be ready
+            var checkInterval = setInterval(function() {
+              var select = document.querySelector('.goog-te-combo');
+              if (select) {
+                clearInterval(checkInterval);
+                select.value = lang;
+                select.dispatchEvent(new Event('change'));
+              }
+            }, 100);
+            
+            // Timeout after 5 seconds
+            setTimeout(function() {
+              clearInterval(checkInterval);
+            }, 5000);
+          }
+        }
+      }
+      
+      // Helper function to change language directly
+      window.changeGoogleTranslateLanguage = function(lang) {
+        var select = document.querySelector('.goog-te-combo');
+        if (select) {
+          select.value = lang;
+          select.dispatchEvent(new Event('change'));
+        } else {
+          // If select not found, try alternative method
+          var iframe = document.querySelector('.goog-te-banner-frame');
+          if (iframe && iframe.contentDocument) {
+            var iframeSelect = iframe.contentDocument.querySelector('select');
+            if (iframeSelect) {
+              iframeSelect.value = lang;
+              iframeSelect.dispatchEvent(new Event('change'));
+            }
+          }
+        }
+      };
+
+      // Force translate all elements including dynamic ones
+      window.forceTranslatePage = function(lang) {
+        // Method 1: Use Google Translate select
+        var select = document.querySelector('.goog-te-combo');
+        if (select) {
+          select.value = lang;
+          select.dispatchEvent(new Event('change', { bubbles: true }));
+        }
+
+        // Method 2: Try alternative selectors
+        var altSelects = [
+          document.querySelector('#\\:0\\.target\\.lang'),
+          document.querySelector('#\\:1\\.target\\.lang'),
+          document.querySelector('select.goog-te-combo')
+        ];
+        
+        altSelects.forEach(function(sel) {
+          if (sel && sel.value !== lang) {
+            sel.value = lang;
+            sel.dispatchEvent(new Event('change', { bubbles: true }));
+          }
+        });
+
+        // Method 3: Direct iframe manipulation
+        var iframes = document.querySelectorAll('iframe.goog-te-banner-frame, iframe.goog-te-menu-frame');
+        iframes.forEach(function(iframe) {
+          try {
+            if (iframe.contentDocument) {
+              var iframeSelect = iframe.contentDocument.querySelector('select');
+              if (iframeSelect && iframeSelect.value !== lang) {
+                iframeSelect.value = lang;
+                iframeSelect.dispatchEvent(new Event('change', { bubbles: true }));
+              }
+            }
+          } catch (e) {
+            // Cross-origin error, ignore
+          }
+        });
+
+        // Method 4: Trigger translation via Google Translate API
+        if (window.google && window.google.translate) {
+          try {
+            var translateElement = document.getElementById('google_translate_element');
+            if (translateElement) {
+              // Force re-translation
+              var event = new CustomEvent('translate', { detail: { lang: lang } });
+              document.dispatchEvent(event);
+            }
+          } catch (e) {
+            console.log('Translation trigger error:', e);
+          }
+        }
+      };
+
+      // Monitor for new elements and ensure they get translated
+      var translationObserver = new MutationObserver(function(mutations) {
+        mutations.forEach(function(mutation) {
+          if (mutation.addedNodes.length > 0) {
+            // Check if Google Translate is active
+            var select = document.querySelector('.goog-te-combo');
+            if (select && select.value && select.value !== 'ar') {
+              // Re-trigger translation for new elements
+              setTimeout(function() {
+                if (window.forceTranslatePage) {
+                  window.forceTranslatePage(select.value);
+                }
+              }, 100);
+            }
+          }
+        });
+      });
+
+      // Start observing when DOM is ready
+      if (document.readyState === 'loading') {
+        document.addEventListener('DOMContentLoaded', function() {
+          translationObserver.observe(document.body, {
+            childList: true,
+            subtree: true
+          });
+        });
+      } else {
+        translationObserver.observe(document.body, {
+          childList: true,
+          subtree: true
+        });
+      }
+    </script>
+  </head>
+
+  <body>
+    <div id="google_translate_element" style="display:none;"></div>
+    <div id="root"></div>
+
+    <script type="module" src="/client/App.tsx"></script>
+  </body>
+</html>

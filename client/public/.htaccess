@@ -1,0 +1,21 @@
+RewriteEngine On
+RewriteBase /
+
+# CRITICAL: Exclude API routes from SPA routing - MUST be first
+# This prevents API requests from being rewritten to index.html
+RewriteCond %{REQUEST_URI} ^/api/
+RewriteRule ^ - [L]
+
+# Also check for API in the full URL
+RewriteCond %{THE_REQUEST} ^[A-Z]{3,}\s+/api/
+RewriteRule ^ - [L]
+
+# Let existing files/folders pass through
+RewriteCond %{REQUEST_FILENAME} -f [OR]
+RewriteCond %{REQUEST_FILENAME} -d
+RewriteRule ^ - [L]
+
+# Fallback everything else to index.html (SPA routing)
+# BUT NOT API routes (already excluded above)
+RewriteRule ^ index.html [L]
+
