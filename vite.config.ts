@@ -16,13 +16,20 @@ export default defineConfig(({ mode }) => ({
   build: {
     outDir: "dist/spa",
     copyPublicDir: true, // Ensure public directory is copied
-    // GitHub Pages: use relative paths if base is set
+    // GitHub Pages: use relative paths for assets
     assetsDir: "assets",
+    rollupOptions: {
+      output: {
+        // Use relative paths for assets to work on GitHub Pages
+        assetFileNames: 'assets/[name]-[hash][extname]',
+        chunkFileNames: 'assets/[name]-[hash].js',
+        entryFileNames: 'assets/[name]-[hash].js',
+      },
+    },
   },
-  // GitHub Pages: Set base path if deploying to a subdirectory
-  // For root domain: base: '/'
+  // GitHub Pages: Use relative paths (empty string) for root domain
   // For subdirectory: base: '/repo-name/'
-  base: process.env.GITHUB_PAGES_BASE || '/',
+  base: process.env.GITHUB_PAGES_BASE || '/ciarciar/',
   publicDir: "client/public", // Explicitly set public directory
   plugins: [react(), expressPlugin()],
   resolve: {
