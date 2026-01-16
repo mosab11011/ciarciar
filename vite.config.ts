@@ -3,6 +3,12 @@ import react from "@vitejs/plugin-react-swc";
 import path from "path";
 import { createServer } from "./server";
 
+export default defineConfig({
+  base: "/REPO-NAME/",
+  plugins: [react()],
+});
+
+
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   root: process.cwd(), // Set root to current directory
