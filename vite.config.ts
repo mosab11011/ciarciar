@@ -5,6 +5,7 @@ import { createServer } from "./server";
 
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
+  root: process.cwd(), // Set root to current directory
   server: {
     host: "::",
     port: 8080,
