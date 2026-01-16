@@ -20,6 +20,7 @@ export default defineConfig(({ mode }) => ({
     // GitHub Pages: use relative paths for assets
     assetsDir: "assets",
     rollupOptions: {
+      input: path.resolve(__dirname, "index.html"),
       output: {
         // Use relative paths for assets to work on GitHub Pages
         assetFileNames: 'assets/[name]-[hash][extname]',
