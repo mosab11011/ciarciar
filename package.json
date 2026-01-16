@@ -6,6 +6,7 @@
     "assets": [
       "dist/spa/*"
     ],
+    "homepage": "https://USERNAME.github.io/REPO-NAME"
     "scripts": [
       "dist/server/**/*.js"
     ]
