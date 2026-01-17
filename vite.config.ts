@@ -6,6 +6,10 @@ import { createServer } from "./server";
 // https://vitejs.dev/config/
 export default defineConfig(({ mode }) => ({
   root: ".", // Root directory
+
+  // =========================
+  // Development server config
+  // =========================
   server: {
     host: "::",
     port: 8080,
@@ -14,26 +18,46 @@ export default defineConfig(({ mode }) => ({
       deny: [".env", ".env.*", "*.{crt,pem}", "**/.git/**", "server/**"],
     },
   },
+
+  // =========================
+  // Build config (GitHub Pages)
+  // =========================
   build: {
-    outDir: "dist/spa",
-    copyPublicDir: true, // Ensure public directory is copied
-    // GitHub Pages: use relative paths for assets
+    outDir: "dist", // 👈 مهم جدًا لـ GitHub Pages
+    emptyOutDir: true,
+    copyPublicDir: true,
     assetsDir: "assets",
     rollupOptions: {
       input: path.resolve(__dirname, "index.html"),
       output: {
-        // Use relative paths for assets to work on GitHub Pages
-        assetFileNames: 'assets/[name]-[hash][extname]',
-        chunkFileNames: 'assets/[name]-[hash].js',
-        entryFileNames: 'assets/[name]-[hash].js',
+        assetFileNames: "assets/[name]-[hash][extname]",
+        chunkFileNames: "assets/[name]-[hash].js",
+        entryFileNames: "assets/[name]-[hash].js",
       },
     },
   },
-  // GitHub Pages: Use relative paths (empty string) for root domain
-  // For subdirectory: base: '/repo-name/'
-  base: process.env.GITHUB_PAGES_BASE || '/ciarciar/',
-  publicDir: "client/public", // Explicitly set public directory
-  plugins: [react(), expressPlugin()],
+
+  // =========================
+  // GitHub Pages base path
+  // =========================
+  base: "/ciarciar/",
+
+  // =========================
+  // Public assets
+  // =========================
+  publicDir: "client/public",
+
+  // =========================
+  // Plugins
+  // =========================
+  plugins: [
+    react(),
+    expressPlugin(), // يعمل فقط أثناء development
+  ],
+
+  // =========================
+  // Aliases
+  // =========================
   resolve: {
     alias: {
       "@": path.resolve(__dirname, "./client"),
@@ -42,21 +66,20 @@ export default defineConfig(({ mode }) => ({
   },
 }));
 
+// ===================================
+// Express middleware (DEV only)
+// ===================================
 function expressPlugin(): Plugin {
   return {
     name: "express-plugin",
-    apply: "serve", // Only apply during development (serve mode)
+    apply: "serve", // ✔️ يعمل فقط في npm run dev
     configureServer(server) {
       const app = createServer();
 
-      // CRITICAL: Add Express app as middleware BEFORE Vite's SPA fallback
-      // This ensures API routes are handled by Express, not Vite
       server.middlewares.use((req, res, next) => {
-        // If it's an API route, handle it with Express
-        if (req.url?.startsWith('/api/')) {
+        if (req.url?.startsWith("/api/")) {
           return app(req, res, next);
         }
-        // Otherwise, let Vite handle it (SPA routing, HMR, etc.)
         next();
       });
     },
